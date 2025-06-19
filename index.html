@@ -28,77 +28,78 @@
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      const terrainProvider = await Cesium.createWorldTerrain();
-
-      const viewer = new Cesium.Viewer('cesiumContainer', {
-        baseLayerPicker: true,
-        terrainProvider: terrainProvider,
-        timeline: false,
-        animation: false
-      });
-
+    async function initMap() {
       try {
+        const terrainProvider = await Cesium.createWorldTerrain();
         const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
-        viewer.imageryLayers.removeAll();
-        viewer.imageryLayers.addImageryProvider(imageryProvider);
+
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+          terrainProvider: terrainProvider,
+          imageryProvider: imageryProvider,
+          baseLayerPicker: false,
+          timeline: false,
+          animation: false
+        });
+
+        document.getElementById('gpxFile').addEventListener('change', function (event) {
+          const file = event.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = function () {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(reader.result, "text/xml");
+            const points = xmlDoc.getElementsByTagName("trkpt");
+
+            const positions = [];
+            for (let i = 0; i < points.length; i++) {
+              const lat = parseFloat(points[i].getAttribute("lat"));
+              const lon = parseFloat(points[i].getAttribute("lon"));
+              const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
+              positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
+            }
+
+            if (positions.length > 0) {
+              viewer.entities.add({
+                polyline: {
+                  positions: positions,
+                  width: 4,
+                  material: Cesium.Color.ORANGE.withAlpha(0.9)
+                }
+              });
+
+              const character = viewer.entities.add({
+                position: new Cesium.ConstantPositionProperty(positions[0]),
+                billboard: {
+                  image: 'https://mytrailmap.vercel.app/character.png',
+                  width: 32,
+                  height: 32
+                }
+              });
+
+              viewer.camera.flyTo({
+                destination: positions[0],
+                orientation: {
+                  pitch: Cesium.Math.toRadians(-25)
+                }
+              });
+
+              let index = 0;
+              setInterval(() => {
+                index = (index + 1) % positions.length;
+                character.position = new Cesium.ConstantPositionProperty(positions[index]);
+              }, 500);
+            }
+          };
+
+          reader.readAsText(file);
+        });
       } catch (error) {
-        console.error('Imagery loading failed:', error);
+        console.error('Initialization error:', error);
+        alert('지도를 초기화할 수 없습니다. 콘솔을 확인하세요.');
       }
+    }
 
-      document.getElementById('gpxFile').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function () {
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(reader.result, "text/xml");
-          const points = xmlDoc.getElementsByTagName("trkpt");
-
-          const positions = [];
-          for (let i = 0; i < points.length; i++) {
-            const lat = parseFloat(points[i].getAttribute("lat"));
-            const lon = parseFloat(points[i].getAttribute("lon"));
-            const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
-            positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
-          }
-
-          if (positions.length > 0) {
-            viewer.entities.add({
-              polyline: {
-                positions: positions,
-                width: 4,
-                material: Cesium.Color.ORANGE.withAlpha(0.9)
-              }
-            });
-
-            const character = viewer.entities.add({
-              position: new Cesium.CallbackProperty(() => positions[0], false),
-              billboard: {
-                image: 'https://mytrailmap.vercel.app/character.png',
-                width: 32,
-                height: 32
-              }
-            });
-
-            viewer.camera.flyTo({
-              destination: positions[0],
-              orientation: {
-                pitch: Cesium.Math.toRadians(-25)
-              }
-            });
-
-            let index = 0;
-            setInterval(() => {
-              index = (index + 1) % positions.length;
-              character.position.setValue(positions[index]);
-            }, 500);
-          }
-        };
-
-        reader.readAsText(file);
-      });
-    });
+    window.addEventListener('DOMContentLoaded', initMap);
   </script>
 </body>
 </html>
