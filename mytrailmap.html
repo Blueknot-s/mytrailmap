@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MyTrailMap - MVP</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.110/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.110/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      font-family: sans-serif;
+    }
+    #gpxInput {
+      position: absolute;
+      top: 10px; left: 10px;
+      z-index: 10;
+      background: white; padding: 8px; border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div id="gpxInput">
+    <label>Upload GPX: <input type="file" id="gpxFile" accept=".gpx" /></label>
+  </div>
+  <div id="cesiumContainer"></div>
+
+  <script>
+    // Assign Ion Access Token
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
+
+    // Initialize Cesium viewer
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      terrainProvider: Cesium.Terrain.fromWorldTerrain(),
+      imageryProvider: new Cesium.IonImageryProvider({ assetId: 3 }),
+      baseLayerPicker: false,
+      timeline: false,
+      animation: false
+    });
+
+    // Handle GPX file upload
+    document.getElementById('gpxFile').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(reader.result, "text/xml");
+        const points = xmlDoc.getElementsByTagName("trkpt");
+
+        const positions = [];
+        for (let i = 0; i < points.length; i++) {
+          const lat = parseFloat(points[i].getAttribute("lat"));
+          const lon = parseFloat(points[i].getAttribute("lon"));
+          const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
+          positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
+        }
+
+        console.log("Loaded GPX Positions:", positions);
+
+        if (positions.length > 0) {
+          viewer.entities.add({
+            polyline: {
+              positions: positions,
+              width: 4,
+              material: Cesium.Color.ORANGE.withAlpha(0.9)
+            }
+          });
+
+          // Fly to first point in GPX track
+          const firstPoint = positions[0];
+          viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(
+              parseFloat(points[0].getAttribute("lon")),
+              parseFloat(points[0].getAttribute("lat")),
+              1500
+            ),
+            orientation: {
+              pitch: Cesium.Math.toRadians(-35),
+              heading: 0,
+              roll: 0.0
+            }
+          });
+
+          // Add basic icon character at starting point
+          viewer.entities.add({
+            position: firstPoint,
+            billboard: {
+              image: 'https://cdn-icons-png.flaticon.com/512/194/194933.png',
+              width: 32,
+              height: 32
+            }
+          });
+        }
+      };
+
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
