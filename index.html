@@ -30,11 +30,9 @@
 
     async function initViewer() {
       const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
-      const terrainProvider = await Cesium.createWorldTerrainAsync();
 
       const viewer = new Cesium.Viewer('cesiumContainer', {
         imageryProvider: imageryProvider,
-        terrainProvider: terrainProvider,
         baseLayerPicker: false,
         timeline: false,
         animation: false
