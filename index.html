@@ -33,9 +33,11 @@
         const viewer = new Cesium.Viewer('cesiumContainer', {
           baseLayerPicker: false,
           timeline: false,
-          animation: false
+          animation: false,
+          terrainProvider: await Cesium.createWorldTerrainAsync()
         });
 
+        viewer.scene.globe.depthTestAgainstTerrain = true;
         viewer.imageryLayers.removeAll();
         const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2); // World Imagery
         viewer.imageryLayers.addImageryProvider(imageryProvider);
@@ -62,16 +64,17 @@
                 polyline: {
                   positions: positions,
                   width: 4,
+                  clampToGround: true,
                   material: Cesium.Color.ORANGE.withAlpha(0.9)
                 }
               });
 
               const character = viewer.entities.add({
                 position: new Cesium.ConstantPositionProperty(positions[0]),
-                billboard: {
-                  image: 'https://mytrailmap.vercel.app/character.glb',
-                  width: 32,
-                  height: 32
+                model: {
+                  uri: 'https://mytrailmap.vercel.app/character.glb',
+                  scale: 1.5,
+                  minimumPixelSize: 64
                 }
               });
 
