@@ -31,9 +31,7 @@
     function initMap() {
       try {
         const viewer = new Cesium.Viewer('cesiumContainer', {
-          imageryProvider: new Cesium.UrlTemplateImageryProvider({
-            url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-          }),
+          imageryProvider: Cesium.createWorldImagery(),
           baseLayerPicker: false,
           timeline: false,
           animation: false
