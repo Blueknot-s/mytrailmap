@@ -28,15 +28,20 @@
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
-    async function initViewer() {
-      const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(3);
-
+    window.addEventListener('DOMContentLoaded', async () => {
       const viewer = new Cesium.Viewer('cesiumContainer', {
-        imageryProvider: imageryProvider,
-        baseLayerPicker: false,
+        baseLayerPicker: true,
         timeline: false,
         animation: false
       });
+
+      try {
+        const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
+        viewer.imageryLayers.removeAll();
+        viewer.imageryLayers.addImageryProvider(imageryProvider);
+      } catch (error) {
+        console.error('Imagery loading failed:', error);
+      }
 
       document.getElementById('gpxFile').addEventListener('change', function (event) {
         const file = event.target.files[0];
@@ -84,9 +89,7 @@
 
         reader.readAsText(file);
       });
-    }
-
-    initViewer();
+    });
   </script>
 </body>
 </html>
