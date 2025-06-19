@@ -31,13 +31,13 @@
     function initMap() {
       try {
         const viewer = new Cesium.Viewer('cesiumContainer', {
+          imageryProvider: new Cesium.UrlTemplateImageryProvider({
+            url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+          }),
           baseLayerPicker: false,
           timeline: false,
           animation: false
         });
-
-        viewer.imageryLayers.removeAll();
-        viewer.imageryLayers.addImageryProvider(Cesium.createWorldImagery());
 
         document.getElementById('gpxFile').addEventListener('change', function (event) {
           const file = event.target.files[0];
@@ -52,7 +52,7 @@
             for (let i = 0; i < points.length; i++) {
               const lat = parseFloat(points[i].getAttribute("lat"));
               const lon = parseFloat(points[i].getAttribute("lon"));
-              const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
+              const ele = parseFloat(points[i].getElementsByTagName("ele")[0]?.textContent || 0);
               positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
             }
 
@@ -86,6 +86,8 @@
                 index = (index + 1) % positions.length;
                 character.position = new Cesium.ConstantPositionProperty(positions[index]);
               }, 500);
+            } else {
+              alert("GPX 파일에 유효한 트랙 포인트가 없습니다.");
             }
           };
 
