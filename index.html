@@ -30,7 +30,10 @@
 
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: Cesium.Terrain.fromWorldTerrain(),
-      imageryProvider: new Cesium.IonImageryProvider({ assetId: 3 }),
+      imageryProvider: new Cesium.BingMapsImageryProvider({
+        url : 'https://dev.virtualearth.net',
+        mapStyle : Cesium.BingMapsStyle.AERIAL
+      }),
       baseLayerPicker: false,
       timeline: false,
       animation: false
