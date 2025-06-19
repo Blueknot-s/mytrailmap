@@ -28,18 +28,16 @@
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
-    async function initMap() {
+    function initMap() {
       try {
-        const terrainProvider = await Cesium.createWorldTerrain();
-        const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
-
         const viewer = new Cesium.Viewer('cesiumContainer', {
-          terrainProvider: terrainProvider,
-          imageryProvider: imageryProvider,
           baseLayerPicker: false,
           timeline: false,
           animation: false
         });
+
+        viewer.imageryLayers.removeAll();
+        viewer.imageryLayers.addImageryProvider(Cesium.createWorldImagery());
 
         document.getElementById('gpxFile').addEventListener('change', function (event) {
           const file = event.target.files[0];
