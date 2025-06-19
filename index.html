@@ -26,10 +26,8 @@
   <div id="cesiumContainer"></div>
 
   <script>
-    // Assign Ion Access Token
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
-    // Initialize Cesium viewer
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: Cesium.Terrain.fromWorldTerrain(),
       imageryProvider: new Cesium.IonImageryProvider({ assetId: 3 }),
@@ -38,7 +36,6 @@
       animation: false
     });
 
-    // Handle GPX file upload
     document.getElementById('gpxFile').addEventListener('change', function (event) {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -67,7 +64,6 @@
             }
           });
 
-          // Fly to first point in GPX track
           const firstPoint = positions[0];
           viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
@@ -82,7 +78,6 @@
             }
           });
 
-          // Add basic icon character at starting point
           viewer.entities.add({
             position: firstPoint,
             billboard: {
