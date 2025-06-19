@@ -29,9 +29,11 @@
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
     window.addEventListener('DOMContentLoaded', async () => {
+      const terrainProvider = await Cesium.createWorldTerrain();
+
       const viewer = new Cesium.Viewer('cesiumContainer', {
         baseLayerPicker: true,
-        terrainProvider: await Cesium.createWorldTerrain(),
+        terrainProvider: terrainProvider,
         timeline: false,
         animation: false
       });
@@ -71,9 +73,9 @@
             });
 
             const character = viewer.entities.add({
-              position: positions[0],
+              position: new Cesium.CallbackProperty(() => positions[0], false),
               billboard: {
-                image: '/mnt/data/6122d44e-210e-4de7-8557-5893e97d567f.png',
+                image: 'https://mytrailmap.vercel.app/character.png',
                 width: 32,
                 height: 32
               }
@@ -89,7 +91,7 @@
             let index = 0;
             setInterval(() => {
               index = (index + 1) % positions.length;
-              character.position = positions[index];
+              character.position.setValue(positions[index]);
             }, 500);
           }
         };
