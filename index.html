@@ -31,6 +31,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const viewer = new Cesium.Viewer('cesiumContainer', {
         baseLayerPicker: true,
+        terrainProvider: await Cesium.createWorldTerrain(),
         timeline: false,
         animation: false
       });
@@ -69,6 +70,15 @@
               }
             });
 
+            const character = viewer.entities.add({
+              position: positions[0],
+              billboard: {
+                image: '/mnt/data/6122d44e-210e-4de7-8557-5893e97d567f.png',
+                width: 32,
+                height: 32
+              }
+            });
+
             viewer.camera.flyTo({
               destination: positions[0],
               orientation: {
@@ -76,14 +86,11 @@
               }
             });
 
-            viewer.entities.add({
-              position: positions[0],
-              billboard: {
-                image: 'https://cdn-icons-png.flaticon.com/512/194/194933.png',
-                width: 32,
-                height: 32
-              }
-            });
+            let index = 0;
+            setInterval(() => {
+              index = (index + 1) % positions.length;
+              character.position = positions[index];
+            }, 500);
           }
         };
 
