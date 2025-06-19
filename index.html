@@ -28,72 +28,67 @@
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.Terrain.fromWorldTerrain(),
-      imageryProvider: new Cesium.BingMapsImageryProvider({
-        url : 'https://dev.virtualearth.net',
-        mapStyle : Cesium.BingMapsStyle.AERIAL
-      }),
-      baseLayerPicker: false,
-      timeline: false,
-      animation: false
-    });
+    async function initViewer() {
+      const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
+      const terrainProvider = await Cesium.createWorldTerrainAsync();
 
-    document.getElementById('gpxFile').addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        imageryProvider: imageryProvider,
+        terrainProvider: terrainProvider,
+        baseLayerPicker: false,
+        timeline: false,
+        animation: false
+      });
 
-      reader.onload = function () {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(reader.result, "text/xml");
-        const points = xmlDoc.getElementsByTagName("trkpt");
+      document.getElementById('gpxFile').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
 
-        const positions = [];
-        for (let i = 0; i < points.length; i++) {
-          const lat = parseFloat(points[i].getAttribute("lat"));
-          const lon = parseFloat(points[i].getAttribute("lon"));
-          const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
-          positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
-        }
+        reader.onload = function () {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(reader.result, "text/xml");
+          const points = xmlDoc.getElementsByTagName("trkpt");
 
-        console.log("Loaded GPX Positions:", positions);
+          const positions = [];
+          for (let i = 0; i < points.length; i++) {
+            const lat = parseFloat(points[i].getAttribute("lat"));
+            const lon = parseFloat(points[i].getAttribute("lon"));
+            const ele = parseFloat(points[i].getElementsByTagName("ele")[0].textContent);
+            positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
+          }
 
-        if (positions.length > 0) {
-          viewer.entities.add({
-            polyline: {
-              positions: positions,
-              width: 4,
-              material: Cesium.Color.ORANGE.withAlpha(0.9)
-            }
-          });
+          if (positions.length > 0) {
+            viewer.entities.add({
+              polyline: {
+                positions: positions,
+                width: 4,
+                material: Cesium.Color.ORANGE.withAlpha(0.9)
+              }
+            });
 
-          const firstPoint = positions[0];
-          viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-              parseFloat(points[0].getAttribute("lon")),
-              parseFloat(points[0].getAttribute("lat")),
-              1500
-            ),
-            orientation: {
-              pitch: Cesium.Math.toRadians(-35),
-              heading: 0,
-              roll: 0.0
-            }
-          });
+            viewer.camera.flyTo({
+              destination: positions[0],
+              orientation: {
+                pitch: Cesium.Math.toRadians(-25)
+              }
+            });
 
-          viewer.entities.add({
-            position: firstPoint,
-            billboard: {
-              image: 'https://cdn-icons-png.flaticon.com/512/194/194933.png',
-              width: 32,
-              height: 32
-            }
-          });
-        }
-      };
+            viewer.entities.add({
+              position: positions[0],
+              billboard: {
+                image: 'https://cdn-icons-png.flaticon.com/512/194/194933.png',
+                width: 32,
+                height: 32
+              }
+            });
+          }
+        };
 
-      reader.readAsText(file);
-    });
+        reader.readAsText(file);
+      });
+    }
+
+    initViewer();
   </script>
 </body>
 </html>
