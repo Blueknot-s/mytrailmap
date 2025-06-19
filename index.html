@@ -29,10 +29,8 @@
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
     async function initViewer() {
-      const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
-
       const viewer = new Cesium.Viewer('cesiumContainer', {
-        imageryProvider: imageryProvider,
+        imageryProvider: Cesium.createWorldImagery(),
         baseLayerPicker: false,
         timeline: false,
         animation: false
