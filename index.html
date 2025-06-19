@@ -31,11 +31,13 @@
     function initMap() {
       try {
         const viewer = new Cesium.Viewer('cesiumContainer', {
-          imageryProvider: Cesium.createWorldImagery(),
           baseLayerPicker: false,
           timeline: false,
           animation: false
         });
+
+        viewer.imageryLayers.removeAll();
+        viewer.imageryLayers.addImageryProvider(Cesium.createWorldImagery());
 
         document.getElementById('gpxFile').addEventListener('change', function (event) {
           const file = event.target.files[0];
