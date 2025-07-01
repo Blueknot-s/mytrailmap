@@ -77,7 +77,8 @@
               });
 
               const characterEntity = viewer.scene.primitives.add(Cesium.Model.fromGltf({
-                url: 'https://blueknot-s.github.io/mytrailmap/man1.glb', // 경로 수정
+                url: url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb'
+, // 경로 수정
                 modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(positions[0]),
                 scale: 2.0,
                 minimumPixelSize: 128
