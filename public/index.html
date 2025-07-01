@@ -7,15 +7,22 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.110/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
   <style>
     html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       font-family: sans-serif;
     }
     #gpxInput {
       position: absolute;
-      top: 10px; left: 10px;
+      top: 10px;
+      left: 10px;
       z-index: 10;
-      background: white; padding: 8px; border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      background: white;
+      padding: 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
   </style>
 </head>
@@ -26,7 +33,7 @@
   <div id="cesiumContainer"></div>
 
   <script>
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
+    Cesium.Ion.defaultAccessToken = 'YOUR_CESIUM_ION_TOKEN';
 
     async function initMap() {
       try {
@@ -39,7 +46,7 @@
 
         viewer.scene.globe.depthTestAgainstTerrain = true;
         viewer.imageryLayers.removeAll();
-        const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2); // World Imagery
+        const imageryProvider = await Cesium.IonImageryProvider.fromAssetId(2);
         viewer.imageryLayers.addImageryProvider(imageryProvider);
 
         document.getElementById('gpxFile').addEventListener('change', function (event) {
@@ -56,7 +63,7 @@
               const lat = parseFloat(points[i].getAttribute("lat"));
               const lon = parseFloat(points[i].getAttribute("lon"));
               const ele = parseFloat(points[i].getElementsByTagName("ele")[0]?.textContent || 0);
-              positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele));
+              positions.push(Cesium.Cartesian3.fromDegrees(lon, lat, ele + 10));
             }
 
             if (positions.length > 0) {
@@ -69,27 +76,30 @@
                 }
               });
 
-              const character = viewer.entities.add({
-                position: new Cesium.ConstantPositionProperty(positions[0]),
-                model: {
-                  uri: 'https://mytrailmap.vercel.app/character.glb',
-                  scale: 1.5,
-                  minimumPixelSize: 64
-                }
-              });
+              const characterEntity = viewer.scene.primitives.add(Cesium.Model.fromGltf({
+                url: './man1.glb', // ← 상대경로 또는 GitHub Pages 경로로도 가능
+                modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(positions[0]),
+                scale: 2.0,
+                minimumPixelSize: 128
+              }));
 
               viewer.camera.flyTo({
-                destination: positions[0],
+                destination: Cesium.Cartesian3.fromDegrees(
+                  Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(positions[0]).longitude),
+                  Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(positions[0]).latitude),
+                  Cesium.Cartographic.fromCartesian(positions[0]).height + 150
+                ),
                 orientation: {
-                  pitch: Cesium.Math.toRadians(-25)
+                  pitch: Cesium.Math.toRadians(-30)
                 }
               });
 
               let index = 0;
               setInterval(() => {
                 index = (index + 1) % positions.length;
-                character.position = new Cesium.ConstantPositionProperty(positions[index]);
-              }, 500);
+                const matrix = Cesium.Transforms.eastNorthUpToFixedFrame(positions[index]);
+                characterEntity.modelMatrix = matrix;
+              }, 600);
             } else {
               alert("GPX 파일에 유효한 트랙 포인트가 없습니다.");
             }
