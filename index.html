@@ -69,14 +69,19 @@
                 }
               });
 
+              const firstPosition = Cesium.Cartographic.fromCartesian(positions[0]);
               const character = viewer.entities.add({
-                position: new Cesium.ConstantPositionProperty(positions[0]),
+                position: Cesium.Cartesian3.fromDegrees(
+                  Cesium.Math.toDegrees(firstPosition.longitude),
+                  Cesium.Math.toDegrees(firstPosition.latitude),
+                  firstPosition.height + 10
+                ),
                 model: {
-                  uri: 'https://mytrailmap.vercel.app/man1.glb'
-',  // ✅ 변경된 부분
-                  scale: 1.5,
-                  minimumPixelSize: 64
-                }
+                  uri: 'https://mytrailmap.vercel.app/man1.glb',
+                  scale: 5,
+                  minimumPixelSize: 128
+                },
+                heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
               });
 
               viewer.camera.flyTo({
