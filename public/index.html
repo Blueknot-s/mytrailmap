@@ -33,7 +33,7 @@
   <div id="cesiumContainer"></div>
 
   <script>
-    Cesium.Ion.defaultAccessToken = 'YOUR_CESIUM_ION_TOKEN';
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg3NTk0ZS02MTljLTQyNzUtYTM5NS0xOTE1OWUyYTQ1YzMiLCJpZCI6MzEzNzc1LCJpYXQiOjE3NTAzMzYxODV9.bURk43YaYcTZfjV2ebK_f5rOLh5TjIoIlpPYnbkWHl0';
 
     async function initMap() {
       try {
@@ -77,7 +77,8 @@
               });
 
               const characterEntity = viewer.scene.primitives.add(Cesium.Model.fromGltf({
-                url: './man1.glb', // ← 상대경로 또는 GitHub Pages 경로로도 가능
+                url:'https://blueknot-s.github.io/mytrailmap/public/man1.glb'
+', // ← 상대경로 또는 GitHub Pages 경로로도 가능
                 modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(positions[0]),
                 scale: 2.0,
                 minimumPixelSize: 128
