@@ -69,23 +69,22 @@
                 }
               });
 
-              const firstPosition = Cesium.Cartographic.fromCartesian(positions[0]);
+              const firstCartographic = Cesium.Cartographic.fromCartesian(positions[0]);
+              const lon = Cesium.Math.toDegrees(firstCartographic.longitude);
+              const lat = Cesium.Math.toDegrees(firstCartographic.latitude);
+              const height = firstCartographic.height + 30;
+
               const character = viewer.entities.add({
-                position: Cesium.Cartesian3.fromDegrees(
-                  Cesium.Math.toDegrees(firstPosition.longitude),
-                  Cesium.Math.toDegrees(firstPosition.latitude),
-                  firstPosition.height + 10
-                ),
+                position: Cesium.Cartesian3.fromDegrees(lon, lat, height),
                 model: {
-                  uri: 'https://mytrailmap.vercel.app/man1.glb',
-                  scale: 5,
+                  uri: '/man1.glb', // 로컬 public 경로 기준
+                  scale: 5.0,
                   minimumPixelSize: 128
-                },
-                heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+                }
               });
 
               viewer.camera.flyTo({
-                destination: positions[0],
+                destination: Cesium.Cartesian3.fromDegrees(lon, lat, height + 100),
                 orientation: {
                   pitch: Cesium.Math.toRadians(-25)
                 }
